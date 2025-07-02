@@ -41,16 +41,18 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 return false;
             }
             return true;             // Return true for normal processing of tap keycode
-        case LT(0,KC_QUOT): // '@
+        case LT(0,KC_QUOT): // '"
             if (!record->tap.count && record->event.pressed) {
-                tap_code16(S(KC_QUOT)); // Intercept hold function to send @
+                tap_code16(S(KC_QUOT)); 
+                return false;
             }
-            return false;
-        case LT(1,KC_QUOT): // '@
+            return true;
+        case LT(1,KC_QUOT): // '"
             if (!record->tap.count && record->event.pressed) {
-                tap_code16(S(KC_QUOT)); // Intercept hold function to send @
+                tap_code16(S(KC_QUOT)); 
+                return false;
             }
-            return false;
+            return true;
         case LT(1,KC_MINS): // -_
             if (!record->tap.count && record->event.pressed) {
                 tap_code16(S(KC_MINS));
@@ -136,7 +138,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         ),
         [1] = LAYOUT_split_3x6_3(
         KC_TAB, KC_EXLM, KC_AT, KC_HASH, KC_DLR, KC_PERC,                    KC_CIRC, KC_AMPR, KC_PAST, LT(1,KC_MINS), LT(1,KC_EQL), LALT(KC_BSPC),
-        KC_LALT, LGUI(KC_A), LGUI(KC_S), KC_TAB, KC_LALT, KC_LSFT,               KC_LEFT, KC_DOWN, KC_UP, KC_RGHT, LT(1,KC_QUOT), KC_HASH,
+        KC_LALT, LGUI(KC_A), LGUI(KC_S), KC_TAB, KC_LALT, KC_LSFT,               KC_LEFT, KC_DOWN, KC_UP, KC_RGHT, LT(1,KC_QUOT), LALT(KC_3),
         KC_LCTL, LGUI(KC_Z), LGUI(KC_X), LGUI(KC_C), LGUI(KC_V), LALT(KC_SPC),     KC_NO, KC_HOME, KC_END, KC_PGUP, KC_PGDN, KC_NO,
                                             KC_LSFT, KC_LGUI, KC_NO, MO(3), KC_ESC, KC_LGUI
         ),
@@ -153,14 +155,3 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                 KC_LSFT, KC_SPC, KC_NO, KC_NO, KC_ESC, KC_LALT
         )                                                              
 };
-                                                                        
-// #if defined(ENCODER_ENABLE) && defined(ENCODER_MAP_ENABLE)              
-// const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {  
-                                                                        
-// };                                                                      
-// #endif // defined(ENCODER_ENABLE) && defined(ENCODER_MAP_ENABLE)        
-                                                                        
-                                                                        
-                                                                        
-                                                                        
-
