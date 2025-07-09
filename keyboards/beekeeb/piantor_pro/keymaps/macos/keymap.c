@@ -13,34 +13,39 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             return true;             // Return true for normal processing of tap keycode
         case LT(0,KC_DOT):     // .>
             if (!record->tap.count && record->event.pressed) {
-                tap_code16(S(KC_DOT)); // Intercept hold function to send Ctrl-C
+                tap_code16(S(KC_DOT)); 
                 return false;
             }
-            return true;             // Return true for normal processing of tap keycode
+            return true;
         case LT(0,KC_SLSH): // /?
             if (!record->tap.count && record->event.pressed) {
                 tap_code16(S(KC_SLSH)); 
                 return false;
             }
-            return true;             // Return true for normal processing of tap keycode
-        case LT(2,KC_NUBS): // \|
+            return true;
+        case LT(2,KC_BSLS): // pipe/backslash
             if (!record->tap.count && record->event.pressed) {
-                tap_code16(S(KC_NUBS));
+                tap_code16(KC_BSLS); // Hold sends backslash
                 return false;
             }
-            return true;             // Return true for normal processing of tap keycode
+            // For tap, we need to send the shifted version (pipe)
+            if (record->tap.count && record->event.pressed) {
+                tap_code16(S(KC_BSLS)); // Tap sends pipe
+                return false;
+            }
+            return true;
         case LT(0,KC_SCLN): // ;:
             if (!record->tap.count && record->event.pressed) {
                 tap_code16(S(KC_SCLN));
                 return false;
             }
-            return true;             // Return true for normal processing of tap keycode
+            return true;
         case LT(2,KC_NUHS): // #~
             if (!record->tap.count && record->event.pressed) {
                 tap_code16(S(KC_NUHS));
                 return false;
             }
-            return true;             // Return true for normal processing of tap keycode
+            return true;
         case LT(0,KC_QUOT): // '"
             if (!record->tap.count && record->event.pressed) {
                 tap_code16(S(KC_QUOT)); 
@@ -58,7 +63,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 tap_code16(S(KC_MINS));
                 return false;
             }
-            return true;             // Return true for normal processing of tap keycode
+            return true;
         case LT(1,KC_EQL): // =+
             if (!record->tap.count && record->event.pressed) {
                 tap_code16(S(KC_EQL));
@@ -143,9 +148,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                             KC_LSFT, KC_LGUI, KC_NO, MO(3), KC_ESC, KC_LGUI
         ),
         [2] = LAYOUT_split_3x6_3(
-        KC_TAB, KC_GRV, LT(2,KC_1), LT(2,KC_2), LT(2,KC_3), LGUI(KC_PLUS),                 KC_NO, KC_LCBR, KC_RCBR, KC_NO, KC_NO, KC_NO,
-        KC_LALT, LT(2,KC_NUHS), LT(2,KC_4), LT(2,KC_5), LT(2,KC_6), LGUI(KC_MINS),          KC_NO, KC_LPRN, KC_RPRN, KC_NO, KC_NO, KC_NO,
-        KC_LCTL, LT(2,KC_NUBS), LT(2,KC_7), LT(2,KC_8), LT(2,KC_9), LT(2,KC_0),           KC_NO, KC_LBRC, KC_RBRC, KC_COMM, KC_GT, KC_NO,
+        KC_TAB, KC_GRV, LT(2,KC_1), LT(2,KC_2), LT(2,KC_3), LGUI(KC_PLUS),                 LGUI(LSFT(KC_5)), KC_LCBR, KC_RCBR, KC_NO, KC_NO, KC_NO,
+        KC_LALT, LT(2,KC_NUHS), LT(2,KC_4), LT(2,KC_5), LT(2,KC_6), LGUI(KC_MINS),          LGUI(LSFT(LCTL(KC_4))), KC_LPRN, KC_RPRN, KC_NO, KC_NO, KC_NO,
+        KC_LCTL, LT(2,KC_BSLS), LT(2,KC_7), LT(2,KC_8), LT(2,KC_9), LT(2,KC_0),           KC_NO, KC_LBRC, KC_RBRC, KC_COMM, KC_GT, KC_NO,
                                  KC_LSFT, KC_SPC, MO(3), KC_NO, KC_ESC, KC_LALT
         ),
         [3] = LAYOUT_split_3x6_3(
