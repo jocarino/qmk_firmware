@@ -240,7 +240,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
          */
         [2] = LAYOUT_split_3x6_3(
         //  Tab   |  `    | 1/⌘1       | 2/⌘2       | 3/⌘3       | ⌘= (zoom)        ⌘⇧5 (screenshot)   |  {    |  }    |  ·   |  ·   |  ·
-        KC_TAB, KC_NUBS, LT(2,KC_1), LT(2,KC_2), LT(2,KC_3), LGUI(KC_EQL),                  LGUI(LSFT(KC_5)), KC_LCBR, KC_RCBR, KC_NO, KC_NO, KC_NO,
+        KC_TAB, KC_GRV, LT(2,KC_1), LT(2,KC_2), LT(2,KC_3), LGUI(KC_EQL),                  LGUI(LSFT(KC_5)), KC_LCBR, KC_RCBR, KC_NO, KC_NO, KC_NO,
         //  Cmd   | #/~   | 4/⌘4       | 5/⌘5       | 6/⌘6       | ⌘- (zoom)        ⌘⇧⌃4 (snip→clip)   |  (    |  )    |  ·   |  ·   |  ·
         KC_LGUI, LT(2,KC_NUHS), LT(2,KC_4), LT(2,KC_5), LT(2,KC_6), LGUI(KC_MINS),          LGUI(LSFT(LCTL(KC_4))), KC_LPRN, KC_RPRN, KC_NO, KC_NO, KC_NO,
         //  Ctl   | \ / | | 7/⌘7       | 8/⌘8       | 9/⌘9       | 0/⌘0                  ·             |  [    |  ]    |  ,   |  >   |  ·
