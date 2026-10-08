@@ -15,10 +15,10 @@
  *                  that QMK gives us for free (`record->tap.count`).
  *
  *   - LT(1, kc) / LT(2, kc): tap sends `kc` (or a custom tap), hold sends a
- *                  custom symbol. The corresponding layer switch would also
- *                  fire on hold, but since these keys only appear on layers
- *                  where that transition is fine, it is used as a pure
- *                  tap/hold handler.
+ *                  custom symbol. Used as a pure tap/hold handler: both the
+ *                  hold press and the hold release are swallowed, otherwise
+ *                  QMK would layer_off() on release and drop the layer while
+ *                  its MO key is still held.
  *
  * When `record->tap.count == 0` the key was held past TAPPING_TERM (200 ms,
  * see config.h) and we emit the "hold" action ourselves via tap_code16().
@@ -35,26 +35,26 @@
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case LT(0,KC_COMM):     // ,<
-            if (!record->tap.count && record->event.pressed) {
-                tap_code16(S(KC_COMM)); 
+            if (!record->tap.count) {
+                if (record->event.pressed) tap_code16(S(KC_COMM)); 
                 return false;
             }
             return true;             // Return true for normal processing of tap keycode
         case LT(0,KC_DOT):     // .>
-            if (!record->tap.count && record->event.pressed) {
-                tap_code16(S(KC_DOT)); 
+            if (!record->tap.count) {
+                if (record->event.pressed) tap_code16(S(KC_DOT)); 
                 return false;
             }
             return true;
         case LT(0,KC_SLSH): // /?
-            if (!record->tap.count && record->event.pressed) {
-                tap_code16(S(KC_SLSH)); 
+            if (!record->tap.count) {
+                if (record->event.pressed) tap_code16(S(KC_SLSH)); 
                 return false;
             }
             return true;
         case LT(2,KC_BSLS): // pipe/backslash
-            if (!record->tap.count && record->event.pressed) {
-                tap_code16(KC_BSLS); // Hold sends backslash
+            if (!record->tap.count) {
+                if (record->event.pressed) tap_code16(KC_BSLS); // Hold sends backslash
                 return false;
             }
             // For tap, we need to send the shifted version (pipe)
@@ -64,14 +64,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
             return true;
         case LT(0,KC_SCLN): // ;:
-            if (!record->tap.count && record->event.pressed) {
-                tap_code16(S(KC_SCLN));
+            if (!record->tap.count) {
+                if (record->event.pressed) tap_code16(S(KC_SCLN));
                 return false;
             }
             return true;
         case LT(2,KC_NUHS): // #~
-            if (!record->tap.count && record->event.pressed) {
-                tap_code16(S(KC_GRAVE)); // Hold sends tilde
+            if (!record->tap.count) {
+                if (record->event.pressed) tap_code16(S(KC_GRAVE)); // Hold sends tilde
                 return false;
             }
             // For tap, we need to send the shifted version (hash)
@@ -81,86 +81,86 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
             return true;
         case LT(0,KC_QUOT): // '"
-            if (!record->tap.count && record->event.pressed) {
-                tap_code16(S(KC_QUOT)); 
+            if (!record->tap.count) {
+                if (record->event.pressed) tap_code16(S(KC_QUOT)); 
                 return false;
             }
             return true;
         case LT(1,KC_QUOT): // '"
-            if (!record->tap.count && record->event.pressed) {
-                tap_code16(S(KC_QUOT)); 
+            if (!record->tap.count) {
+                if (record->event.pressed) tap_code16(S(KC_QUOT)); 
                 return false;
             }
             return true;
         case LT(1,KC_MINS): // -_
-            if (!record->tap.count && record->event.pressed) {
-                tap_code16(S(KC_MINS));
+            if (!record->tap.count) {
+                if (record->event.pressed) tap_code16(S(KC_MINS));
                 return false;
             }
             return true;
         case LT(1,KC_EQL): // =+
-            if (!record->tap.count && record->event.pressed) {
-                tap_code16(S(KC_EQL));
+            if (!record->tap.count) {
+                if (record->event.pressed) tap_code16(S(KC_EQL));
                 return false;
             }
             return true;
         case LT(2,KC_1): // Press -> 1 ; hold CMD+1
-            if (!record->tap.count && record->event.pressed) {
-                tap_code16(LGUI(KC_1));
+            if (!record->tap.count) {
+                if (record->event.pressed) tap_code16(LGUI(KC_1));
                 return false;
             }
             return true;
         case LT(2,KC_2): // Press -> 2 ; hold CMD+2
-            if (!record->tap.count && record->event.pressed) {
-                tap_code16(LGUI(KC_2));
+            if (!record->tap.count) {
+                if (record->event.pressed) tap_code16(LGUI(KC_2));
                 return false;
             }
             return true;
         case LT(2,KC_3): // Press -> 3 ; hold CMD+3
-            if (!record->tap.count && record->event.pressed) {
-                tap_code16(LGUI(KC_3));
+            if (!record->tap.count) {
+                if (record->event.pressed) tap_code16(LGUI(KC_3));
                 return false;
             }
             return true;
         case LT(2,KC_4): // Press -> 4 ; hold CMD+4
-            if (!record->tap.count && record->event.pressed) {
-                tap_code16(LGUI(KC_4));
+            if (!record->tap.count) {
+                if (record->event.pressed) tap_code16(LGUI(KC_4));
                 return false;
             }
             return true;
         case LT(2,KC_5): // Press -> 5 ; hold CMD+5
-            if (!record->tap.count && record->event.pressed) {
-                tap_code16(LGUI(KC_5));
+            if (!record->tap.count) {
+                if (record->event.pressed) tap_code16(LGUI(KC_5));
                 return false;
             }
             return true;
         case LT(2,KC_6): // Press -> 6 ; hold CMD+6
-            if (!record->tap.count && record->event.pressed) {
-                tap_code16(LGUI(KC_6));
+            if (!record->tap.count) {
+                if (record->event.pressed) tap_code16(LGUI(KC_6));
                 return false;
             }
             return true;
         case LT(2,KC_7): // Press -> 7 ; hold CMD+7
-            if (!record->tap.count && record->event.pressed) {
-                tap_code16(LGUI(KC_7));
+            if (!record->tap.count) {
+                if (record->event.pressed) tap_code16(LGUI(KC_7));
                 return false;
             }
             return true;
         case LT(2,KC_8): // Press -> 8 ; hold CMD+8
-            if (!record->tap.count && record->event.pressed) {
-                tap_code16(LGUI(KC_8));
+            if (!record->tap.count) {
+                if (record->event.pressed) tap_code16(LGUI(KC_8));
                 return false;
             }
             return true;
         case LT(2,KC_9): // Press -> 9 ; hold CMD+9
-            if (!record->tap.count && record->event.pressed) {
-                tap_code16(LGUI(KC_9));
+            if (!record->tap.count) {
+                if (record->event.pressed) tap_code16(LGUI(KC_9));
                 return false;
             }
             return true;
         case LT(2,KC_0): // Press -> 0 ; hold CMD+0
-            if (!record->tap.count && record->event.pressed) {
-                tap_code16(LGUI(KC_0));
+            if (!record->tap.count) {
+                if (record->event.pressed) tap_code16(LGUI(KC_0));
                 return false;
             }
             return true;
