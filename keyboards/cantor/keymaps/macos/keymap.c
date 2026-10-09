@@ -169,14 +169,35 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 }
 
 /*
+ * Flow Tap (FLOW_TAP_TERM, see config.h)
+ * -------------------------------------
+ * While typing, a thumb mod-tap pressed right after another key is always a
+ * tap. This stops fast "space, letter" / "enter, letter" overlaps from firing
+ * Hyper+letter or Cmd+letter under PERMISSIVE_HOLD. Only the two thumb keys
+ * opt in: the punctuation and number tap/hold keys above must still resolve
+ * as holds straight after a letter (e.g. `word:`).
+ */
+uint16_t get_flow_tap_term(uint16_t keycode, keyrecord_t *record, uint16_t prev_keycode) {
+    switch (keycode) {
+        case HYPR_T(KC_SPC):
+        case LGUI_T(KC_ENT):
+            if (is_flow_tap_key(prev_keycode)) {
+                return FLOW_TAP_TERM;
+            }
+    }
+    return 0;
+}
+
+/*
  * Layer overview
  * --------------
  *   [0] Base     : QWERTY alphas + shifted punctuation via LT(0, kc) tricks.
  *   [1] Sym/Nav  : shifted number-row symbols, arrow cluster, macOS clipboard
  *                  shortcuts (⌘A/S/Z/X/C/V) on the home row.
  *   [2] Num/Mac  : number row, macOS zoom (⌘+/⌘-), screenshot shortcuts
- *                  (⌘⇧5, ⌘⇧⌃4), brackets and parentheses, plus ⌘1…⌘0 on hold
- *                  for fast tab/space switching in Safari/Finder/etc.
+ *                  (⌘⇧5, ⌘⇧⌃4), brackets, parentheses and arithmetic operators,
+ *                  plus ⌘1…⌘0 on hold for fast tab/space switching in
+ *                  Safari/Finder/etc.
  *   [3] Fn/Media : F1–F12, media transport, brightness, volume, boot.
  *
  * Layer 3 is reached via the "tri-layer" pattern: on layers [1] and [2] the
@@ -220,7 +241,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
          */
         [1] = LAYOUT_split_3x6_3(
         //  Tab  |  !  |  @  |  #   |  $   |  %                       ^   |  &   |  *   | -/_   | =/+   | ⌥⌫ (delete word)
-        KC_TAB, KC_EXLM, KC_AT, KC_HASH, KC_DLR, KC_PERC,                    KC_CIRC, KC_AMPR, KC_PAST, LT(1,KC_MINS), LT(1,KC_EQL), LALT(KC_BSPC),
+        KC_TAB, KC_EXLM, KC_AT, KC_HASH, KC_DLR, KC_PERC,                    KC_CIRC, KC_AMPR, KC_ASTR, LT(1,KC_MINS), LT(1,KC_EQL), LALT(KC_BSPC),
         //  Cmd  | ⌘A  | ⌘S  | Tab  | Opt  | Shft                     ←   |  ↓   |  ↑   |  →    | '/"   | ⌥3 (UK `#`)
         KC_LGUI, LGUI(KC_A), LGUI(KC_S), KC_TAB, KC_LALT, KC_LSFT,               KC_LEFT, KC_DOWN, KC_UP, KC_RGHT, LT(1,KC_QUOT), LALT(KC_3),
         //  Ctl  | ⌘Z  | ⌘X  | ⌘C   | ⌘V   | ⌥Spc (nb-sp)             ·   | Home | End  | PgUp  | PgDn  |  ·
@@ -231,20 +252,20 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
         /* Numbers & macOS shortcuts layer — activated by holding MO(2)
          * ,-----------------------------------------.                ,-----------------------------------------.
-         * | Tab  |  `  | 1⌘1 | 2⌘2 | 3⌘3 |  ⌘=      |                | ⌘⇧5 |  {  |  }  |  ·  |  ·  |  ·       |
-         * | Cmd  | #/~ | 4⌘4 | 5⌘5 | 6⌘6 |  ⌘-      |                |⌘⇧⌃4 |  (  |  )  |  ·  |  ·  |  ·       |
-         * | Ctl  | \|  | 7⌘7 | 8⌘8 | 9⌘9 |  0⌘0     |                |  ·  |  [  |  ]  |  ,  |  >  |  ·       |
+         * | Tab  |  `  | 1⌘1 | 2⌘2 | 3⌘3 |  ⌘=      |                | ⌘⇧5 |  {  |  }  |  +  |  -  |  ·       |
+         * | Cmd  | #/~ | 4⌘4 | 5⌘5 | 6⌘6 |  ⌘-      |                |⌘⇧⌃4 |  (  |  )  |  *  |  /  |  =       |
+         * | Ctl  | \|  | 7⌘7 | 8⌘8 | 9⌘9 |  0⌘0     |                |  ·  |  [  |  ]  |  ,  |  .  |  ·       |
          * `------------------+------+------+--------'                `------+------+------+-----------------'
          *             Shft | ⌘⌥ | MO(3)              (self) | Esc | Opt
          *
          */
         [2] = LAYOUT_split_3x6_3(
-        //  Tab   |  `    | 1/⌘1       | 2/⌘2       | 3/⌘3       | ⌘= (zoom)        ⌘⇧5 (screenshot)   |  {    |  }    |  ·   |  ·   |  ·
-        KC_TAB, KC_GRV, LT(2,KC_1), LT(2,KC_2), LT(2,KC_3), LGUI(KC_EQL),                  LGUI(LSFT(KC_5)), KC_LCBR, KC_RCBR, KC_NO, KC_NO, KC_NO,
-        //  Cmd   | #/~   | 4/⌘4       | 5/⌘5       | 6/⌘6       | ⌘- (zoom)        ⌘⇧⌃4 (snip→clip)   |  (    |  )    |  ·   |  ·   |  ·
-        KC_LGUI, LT(2,KC_NUHS), LT(2,KC_4), LT(2,KC_5), LT(2,KC_6), LGUI(KC_MINS),          LGUI(LSFT(LCTL(KC_4))), KC_LPRN, KC_RPRN, KC_NO, KC_NO, KC_NO,
-        //  Ctl   | \ / | | 7/⌘7       | 8/⌘8       | 9/⌘9       | 0/⌘0                  ·             |  [    |  ]    |  ,   |  >   |  ·
-        KC_LCTL, LT(2,KC_BSLS), LT(2,KC_7), LT(2,KC_8), LT(2,KC_9), LT(2,KC_0),           KC_NO, KC_LBRC, KC_RBRC, KC_COMM, KC_GT, KC_NO,
+        //  Tab   |  `    | 1/⌘1       | 2/⌘2       | 3/⌘3       | ⌘= (zoom)        ⌘⇧5 (screenshot)   |  {    |  }    |  +   |  -   |  ·
+        KC_TAB, KC_GRV, LT(2,KC_1), LT(2,KC_2), LT(2,KC_3), LGUI(KC_EQL),                  LGUI(LSFT(KC_5)), KC_LCBR, KC_RCBR, KC_PLUS, KC_MINS, KC_NO,
+        //  Cmd   | #/~   | 4/⌘4       | 5/⌘5       | 6/⌘6       | ⌘- (zoom)        ⌘⇧⌃4 (snip→clip)   |  (    |  )    |  *   |  /   |  =
+        KC_LGUI, LT(2,KC_NUHS), LT(2,KC_4), LT(2,KC_5), LT(2,KC_6), LGUI(KC_MINS),          LGUI(LSFT(LCTL(KC_4))), KC_LPRN, KC_RPRN, KC_ASTR, KC_SLSH, KC_EQL,
+        //  Ctl   | \ / | | 7/⌘7       | 8/⌘8       | 9/⌘9       | 0/⌘0                  ·             |  [    |  ]    |  ,   |  .   |  ·
+        KC_LCTL, LT(2,KC_BSLS), LT(2,KC_7), LT(2,KC_8), LT(2,KC_9), LT(2,KC_0),           KC_NO, KC_LBRC, KC_RBRC, KC_COMM, KC_DOT, KC_NO,
         //                        Shft | ⌘⌥ | MO(3)                            (self/·) | Esc | Opt
                                  KC_LSFT, LGUI(KC_LALT), MO(3), KC_NO, KC_ESC, KC_LALT
         ),
@@ -260,9 +281,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
          */
         [3] = LAYOUT_split_3x6_3(
         //  Boot  |  F1   |  F2   |  F3   |  F4   |  ·                     WhUp  | Bri+  | Next  | Vol+  | PScr |  ·
-        QK_BOOT, KC_F1, KC_F2, KC_F3, KC_F4, KC_NO,             KC_WH_U, KC_BRIU,      KC_MNXT, KC_VOLU, KC_PSCR, KC_NO,
+        QK_BOOT, KC_F1, KC_F2, KC_F3, KC_F4, KC_NO,             MS_WHLU, KC_BRIU,      KC_MNXT, KC_VOLU, KC_PSCR, KC_NO,
         //  ·     |  F5   |  F6   |  F7   |  F8   |  ·                     WhDn  | ⌘Ent  | Play  | Mute  |  ·   |  ·
-        KC_NO, KC_F5, KC_F6, KC_F7, KC_F8, KC_NO,               KC_WH_D, LGUI(KC_ENT), KC_MPLY, KC_MUTE, KC_NO, KC_NO, 
+        KC_NO, KC_F5, KC_F6, KC_F7, KC_F8, KC_NO,               MS_WHLD, LGUI(KC_ENT), KC_MPLY, KC_MUTE, KC_NO, KC_NO, 
         //  ·     |  F9   | F10   | F11   | F12   |  ·                       ·   | Bri-  | Prev  | Vol-  |  ·   |  ·
         KC_NO, KC_F9, KC_F10, KC_F11, KC_F12, KC_NO,            KC_NO,   KC_BRID,      KC_MPRV, KC_VOLD, KC_NO, KC_NO,
         //                       Shft | Spc |  ·                 ·  | Esc | Opt
