@@ -138,6 +138,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case KC_LGUI:
         case KC_LCTL:
         case LGUI_T(KC_ENT):
+        case LGUI_T(KC_ESC):
             if (pc_tab_mod && !record->event.pressed) {
                 unregister_mods(pc_tab_mod);
                 pc_tab_mod = 0;
@@ -346,7 +347,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
          * | Cmd  | ⌘A  | ⌘S  | Tab | Opt | Shft     |                |  ←  |  ↓  |  ↑  |  →  | ' " | ⌥3 (UK#) |
          * | Ctl  | ⌘Z  | ⌘X  | ⌘C  | ⌘V  | ⌥Spc     |                |  ·  | Home| End | PgUp| PgDn|  ·       |
          * `------------------+------+------+--------'                `------+------+------+-----------------'
-         *             Shft | Cmd | (self)             MO(3) | Esc | Cmd
+         *             Shft | Cmd | (self)             MO(3) | Esc/Cmd | Cmd
          *
          */
         [1] = LAYOUT_split_3x6_3(
@@ -356,8 +357,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_LGUI, LGUI(KC_A), LGUI(KC_S), KC_TAB, KC_LALT, KC_LSFT,               KC_LEFT, KC_DOWN, KC_UP, KC_RGHT, LT(1,KC_QUOT), OS_HASH,
         //  Ctl  | ⌘Z  | ⌘X  | ⌘C   | ⌘V   | ⌥Spc (nb-sp)             ·   | Home | End  | PgUp  | PgDn  |  ·
         KC_LCTL, LGUI(KC_Z), LGUI(KC_X), LGUI(KC_C), LGUI(KC_V), OS_NBSP,     KC_NO, KC_HOME, KC_END, KC_PGUP, KC_PGDN, KC_NO,
-        //                   Shft | Cmd | (self/·)               MO(3) | Esc | Cmd
-                                            KC_LSFT, KC_LGUI, KC_NO, MO(3), KC_ESC, KC_LGUI
+        //                   Shft | Cmd | (self/·)               MO(3) | Esc/Cmd | Cmd
+                                            KC_LSFT, KC_LGUI, KC_NO, MO(3), LGUI_T(KC_ESC), KC_LGUI
         ),
 
         /* Numbers & macOS shortcuts layer — activated by holding MO(2)
